@@ -1,11 +1,18 @@
 import { ObstacleDetector } from './ObstacleDetector.tsx'
 
-export const Dashboard = () => (
+type Props = {
+    temperature: number
+    humidityPercentage: number
+    compassPosition: number
+    lightsOn: boolean
+}
+
+export const Dashboard = (props: Props) => (
   <div>
     <ObstacleDetector distance={28}/>
-    <div>Temperature: 22°C</div>
-    <div>Humidity 80%</div>
-    <div>Compass: 180°</div>
-    <div>Lights: <input type="checkbox"/></div>
+    <div>Temperature: {props.temperature}°C</div>
+    <div>Humidity {props.humidityPercentage}%</div>
+    <div>Compass: {props.compassPosition}°</div>
+    <div>Lights: <input type="checkbox" checked={props.lightsOn}/></div>
   </div>
 )
