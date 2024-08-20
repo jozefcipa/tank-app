@@ -21,10 +21,10 @@ function App() {
         </div>
         <div className="col-span-6 p-3">
           <div className="grid grid-rows-5 gap-5 h-full">
-            <div className="row-span-2 bg-blue-200 text-center content-center">
+            <div className="row-span-2 border border-rose-500 text-center content-center">
               <Dashboard />
             </div>
-            <div className="row-span-3 bg-orange-200 text-center content-center">
+            <div className="row-span-3 border border-rose-500 text-center content-center">
               <Camera />
             </div>
           </div>
