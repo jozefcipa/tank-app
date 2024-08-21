@@ -59,7 +59,7 @@ export const ObstacleDetector = (props: { distance: number }) => {
         className={cx('h-0 w-[10rem] mb-1', proximityLevelOpacity(proximityLevel, ProximityLevel.Safe))}
         style={style(colors[ProximityLevel.Safe])}
       ></div>
-      <div className={cx('font-bold', color)}>
+      <div className={cx('font-bold text-xl', color)}>
         { proximityLevel !== ProximityLevel.Safe && <>{props.distance}&nbsp;cm </> }
       </div>
     </div>

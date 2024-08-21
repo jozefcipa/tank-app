@@ -42,16 +42,16 @@ function App() {
   const [leftMotorDirection, setLeftMotorDirection] = useState<Direction | null>(null)
   const [rightMotorDirection, setRightMotorDirection] = useState<Direction | null>(null)
 
-  useInterval(() => {
-    console.log('tick')
-
-    if (leftMotorDirection || rightMotorDirection) {
-      console.log('sending to robot', {
-        leftMotorDirection,
-        rightMotorDirection,
-      })
-    }
-  }, 1000)
+  // useInterval(() => {
+  //   console.log('tick')
+  //
+  //   if (leftMotorDirection || rightMotorDirection) {
+  //     console.log('sending to robot', {
+  //       leftMotorDirection,
+  //       rightMotorDirection,
+  //     })
+  //   }
+  // }, 1000)
 
 
   useEffect(() => {
