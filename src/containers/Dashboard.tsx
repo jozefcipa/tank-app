@@ -10,6 +10,8 @@ type Props = {
   compassPosition: number
   lightsOn: boolean
   onBluetoothConnect: () => Promise<void>
+  isBluetoothConnecting: boolean
+  isBluetoothConnected: boolean
 }
 
 export const Dashboard = (props: Props) =>{
@@ -33,7 +35,11 @@ export const Dashboard = (props: Props) =>{
                 }
                 }/>
               <div className="col-span-2">
-                <BluetoothConnect isLoading={false /* todo */} connected={false /* bluetooth.isConnected */} onClick={props.onBluetoothConnect}/>
+                <BluetoothConnect
+                  isLoading={props.isBluetoothConnecting}
+                  connected={props.isBluetoothConnected}
+                  onClick={props.onBluetoothConnect}
+                />
               </div>
             </div>
           </div>

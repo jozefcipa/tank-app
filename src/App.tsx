@@ -2,35 +2,36 @@ import { MotorControlButtons } from './containers/MotorControlButtons.tsx'
 import { Camera } from './containers/Camera.tsx'
 import { Dashboard } from './containers/Dashboard.tsx'
 import { useEffect, useState } from 'react'
-import { Direction } from './types.ts'
-import { useInterval } from './hooks/useInterval.ts'
+import { MotorDirection } from './protocol/types.ts'
+import bluetooth from './services/bluetooth.ts'
+import { ErrorAlert } from './components/ErrorAlert.tsx'
 
 interface MotorDirections {
-  left: Direction
-  right: Direction
+  left: MotorDirection
+  right: MotorDirection
 }
 
 function keyboardEventToMotorDirections(event: KeyboardEvent): MotorDirections | null {
   switch (event.key) {
     case 'ArrowUp':
       return {
-        left: Direction.FORWARD,
-        right: Direction.FORWARD,
+        left: MotorDirection.Forward,
+        right: MotorDirection.Forward,
       }
     case 'ArrowDown':
       return {
-        left: Direction.BACKWARD,
-        right: Direction.BACKWARD,
+        left: MotorDirection.Backward,
+        right: MotorDirection.Backward,
       }
     case 'ArrowLeft':
       return {
-        left: Direction.BACKWARD,
-        right: Direction.FORWARD,
+        left: MotorDirection.Backward,
+        right: MotorDirection.Forward,
       }
     case 'ArrowRight':
       return {
-        left: Direction.FORWARD,
-        right: Direction.BACKWARD,
+        left: MotorDirection.Forward,
+        right: MotorDirection.Backward,
       }
     default:
       return null
@@ -39,8 +40,8 @@ function keyboardEventToMotorDirections(event: KeyboardEvent): MotorDirections |
 
 function App() {
 
-  const [leftMotorDirection, setLeftMotorDirection] = useState<Direction | null>(null)
-  const [rightMotorDirection, setRightMotorDirection] = useState<Direction | null>(null)
+  const [leftMotorDirection, setLeftMotorDirection] = useState<MotorDirection | null>(null)
+  const [rightMotorDirection, setRightMotorDirection] = useState<MotorDirection | null>(null)
 
   // useInterval(() => {
   //   console.log('tick')
@@ -53,10 +54,9 @@ function App() {
   //   }
   // }, 1000)
 
-
-  useEffect(() => {
-    // TODO: init bluetooth here and list devices
-  }, [])
+  const [bluetoothConnecting, setBluetoothConnecting] = useState(false)
+  const [bluetoothConnected, setBluetoothConnected] = useState(false)
+  const [error, setError] = useState<string>('')
 
   // Handle directions from keyboard
   useEffect(() => {
@@ -91,29 +91,62 @@ function App() {
         <div className="col-span-2 p-3">
           {/* Left motor */}
           <MotorControlButtons
-            onButtonDown={(direction: Direction) => setLeftMotorDirection(direction)}
+            onButtonDown={(direction: MotorDirection) => setLeftMotorDirection(direction)}
             onButtonUp={() => setLeftMotorDirection(null)}
           />
         </div>
         <div className="col-span-6 p-3">
           <div className="grid grid-rows-5 gap-5 h-full">
-            <div className="row-span-2 border border-rose-500 text-center content-center">
+            <div className="row-span-2 text-center content-center">
               <Dashboard
                 temperature={20}
                 humidityPercentage={50}
                 compassPosition={180}
                 lightsOn={true}
+                isBluetoothConnecting={bluetoothConnecting}
+                isBluetoothConnected={bluetoothConnected}
+                onBluetoothConnect={async () => {
+                  if (bluetoothConnected) {
+                    return
+                  }
+
+                  // Connect to Bluetooth
+                  setBluetoothConnecting(true)
+                  setError('')
+                  try {
+                    await bluetooth.connect()
+                  } catch (err: unknown) {
+                    const errMessage = (err as Error).message
+
+                    // User cancelled the Bluetooth dialog
+                    if (errMessage === 'User cancelled the requestDevice() chooser.') {
+                      return
+                    }
+
+                    setError((err as Error).message)
+                  } finally {
+                    setBluetoothConnecting(false)
+                  }
+
+                  setBluetoothConnected(true)
+
+                  await bluetooth.send('Hello from WEB')
+                  bluetooth.onReceive(message => {
+                    console.log('[Bluetooth] Incoming message from Arduino', message)
+                  })
+                }}
               />
+              { error && <ErrorAlert title={'Error'} message={error}/> }
             </div>
-            <div className="row-span-3 border border-rose-500 text-center content-center">
-              <Camera />
+            <div className="row-span-3 border border-black text-center content-center">
+              <Camera/>
             </div>
           </div>
         </div>
         <div className="col-span-2 p-3">
           {/* Right motor */}
           <MotorControlButtons
-            onButtonDown={(direction: Direction) => setRightMotorDirection(direction)}
+            onButtonDown={(direction: MotorDirection) => setRightMotorDirection(direction)}
             onButtonUp={() => setRightMotorDirection(null)}
           />
         </div>
