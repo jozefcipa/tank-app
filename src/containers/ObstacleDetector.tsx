@@ -16,12 +16,12 @@ const colors = {
 
 const style = (color: string) => ({
   borderBottom: `15px solid ${color}`,
-  borderLeft: '10px solid transparent',
-  borderRight: '10px solid transparent'
+  borderLeft: '20px solid transparent',
+  borderRight: '20px solid transparent'
 })
 
 const proximityLevelOpacity = (value: ProximityLevel, proximityLevel: ProximityLevel) =>
-  value === proximityLevel ? 'opacity-100' : 'opacity-40'
+  value === proximityLevel ? 'opacity-100' : 'opacity-20'
 
 const evaluateProximityLevel = (distance: number) => {
   switch (true) {
@@ -39,28 +39,26 @@ const evaluateProximityLevel = (distance: number) => {
 export const ObstacleDetector = (props: { distance: number }) => {
   const proximityLevel = evaluateProximityLevel(props.distance)
 
-  const color = `text-[${colors[proximityLevel]}]` // TODO: color doesn't get updated, but #bada55 works
-  // const color = `text-[#bada55]`
   return (
     <div className="flex flex-col items-center">
       <div
-        className={cx('h-0 w-[5.5rem] mb-1', proximityLevelOpacity(proximityLevel, ProximityLevel.Critical))}
+        className={cx('h-0 w-[21rem] mb-1', proximityLevelOpacity(proximityLevel, ProximityLevel.Critical))}
         style={style(colors[ProximityLevel.Critical])}
       ></div>
       <div
-        className={cx('h-0 w-[7rem] mb-1', proximityLevelOpacity(proximityLevel, ProximityLevel.Warning))}
+        className={cx('h-0 w-[24rem] mb-1', proximityLevelOpacity(proximityLevel, ProximityLevel.Warning))}
         style={style(colors[ProximityLevel.Warning])}
       ></div>
       <div
-        className={cx('h-0 w-[8.5rem] mb-1', proximityLevelOpacity(proximityLevel, ProximityLevel.Caution))}
+        className={cx('h-0 w-[27rem] mb-1', proximityLevelOpacity(proximityLevel, ProximityLevel.Caution))}
         style={style(colors[ProximityLevel.Caution])}
       ></div>
       <div
-        className={cx('h-0 w-[10rem] mb-1', proximityLevelOpacity(proximityLevel, ProximityLevel.Safe))}
+        className={cx('h-0 w-[30rem] mb-1', proximityLevelOpacity(proximityLevel, ProximityLevel.Safe))}
         style={style(colors[ProximityLevel.Safe])}
       ></div>
-      <div className={cx('font-bold text-xl', color)}>
-        { proximityLevel !== ProximityLevel.Safe && <>{props.distance}&nbsp;cm </> }
+      <div className="text-lg" style={{ color: colors[proximityLevel]}}>
+        {props.distance < 100 ? props.distance : '> 100'} cm
       </div>
     </div>
   )

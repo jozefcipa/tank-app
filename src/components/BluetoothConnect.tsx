@@ -1,4 +1,4 @@
-import bluetoothLogo from '../../public/assets/bluetooth.png'
+import bluetoothLogo from '/assets/bluetooth.png'
 import { cx } from '../utils.ts'
 
 interface Props {
