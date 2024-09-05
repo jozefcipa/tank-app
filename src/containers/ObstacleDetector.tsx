@@ -15,7 +15,7 @@ const colors = {
 }
 
 const style = (color: string) => ({
-  borderBottom: `15px solid ${color}`,
+  borderBottom: `20px solid ${color}`,
   borderLeft: '20px solid transparent',
   borderRight: '20px solid transparent'
 })
@@ -40,7 +40,7 @@ export const ObstacleDetector = (props: { distance: number }) => {
   const proximityLevel = evaluateProximityLevel(props.distance)
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center border-t-2 border-black">
       <div
         className={cx('h-0 w-[21rem] mb-1', proximityLevelOpacity(proximityLevel, ProximityLevel.Critical))}
         style={style(colors[ProximityLevel.Critical])}

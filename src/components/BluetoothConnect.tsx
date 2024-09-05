@@ -8,14 +8,13 @@ interface Props {
 }
 
 export const BluetoothConnect = ({ connected, isLoading, onClick }: Props) =>  (
-  <button onClick={onClick} className="flex items-center">
+  <button onClick={onClick} className={cx(
+    'flex items-center p-3 border rounded-lg',
+    connected ? 'bg-green-500' : isLoading ? 'bg-yellow-500' : 'bg-[#379EF0]')
+  }>
     <img alt="bluetooth" src={bluetoothLogo} className="w-6 mr-2"/>
     <span
-      className={cx(
-        'font-medium',
-        isLoading ? 'text-yellow-500' : connected ? 'text-green-500' : 'text-[#379EF0]',
-      )}
-    >
+      className='font-medium text-white'>
       {isLoading ? 'Connecting...' : connected ? 'Connected' : 'Connect to tank'}
     </span>
   </button>

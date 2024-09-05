@@ -6,7 +6,7 @@ interface Props {
 
 export const Compass = ({ position }: Props) => {
   return (
-    <div>
+    <div className="text-center">
       <div className="compass">
         <div className="compass-inner">
           <div className="north">N</div>
