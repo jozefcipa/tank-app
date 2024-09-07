@@ -1,4 +1,4 @@
-import { MotorDirection } from '../protocol/types.ts'
+import { MotorDirection } from '../tank/types.ts'
 
 type Props = {
   onButtonDown: (direction: MotorDirection) => void
@@ -13,21 +13,13 @@ const Button = (props: ButtonProps) => (
     onTouchStart={() => props.onButtonDown(props.direction)}
     onTouchEnd={props.onButtonUp}
   >
-    { props.direction === MotorDirection.Forward ? '▲' : '▼' }
+    {props.direction === MotorDirection.Forward ? '▲' : '▼'}
   </button>
 )
 
 export const MotorControlButtons = (props: Props) => (
   <div className="grid grid-rows-2 gap-5 h-full">
-    <Button
-      direction={MotorDirection.Forward}
-      onButtonDown={props.onButtonDown}
-      onButtonUp={props.onButtonUp}
-    />
-    <Button
-      direction={MotorDirection.Backward}
-      onButtonDown={props.onButtonDown}
-      onButtonUp={props.onButtonUp}
-    />
+    <Button direction={MotorDirection.Forward} onButtonDown={props.onButtonDown} onButtonUp={props.onButtonUp} />
+    <Button direction={MotorDirection.Backward} onButtonDown={props.onButtonDown} onButtonUp={props.onButtonUp} />
   </div>
 )

@@ -1,5 +1,1 @@
-export const Camera = () => (
-  <div>
-    camera
-  </div>
-)
+export const Camera = () => <div>camera</div>

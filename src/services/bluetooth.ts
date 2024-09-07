@@ -1,10 +1,9 @@
-
 type OnReceiveHandler = (message: string) => void
 
 class Bluetooth {
   // TODO find out what these numbers mean
-  #serviceUUID = 0xFFE0
-  #serialUUID = 0xFFE1
+  #serviceUUID = 0xffe0
+  #serialUUID = 0xffe1
   #btDevice: BluetoothDevice | null = null
   #characteristic: BluetoothRemoteGATTCharacteristic | null = null
   #onReceiveHandler: OnReceiveHandler | null = null
@@ -13,15 +12,17 @@ class Bluetooth {
     return Boolean(this.#btDevice?.gatt)
   }
 
-  async connect() {
+  connect = async () => {
     if (this.isConnected) {
       console.warn('Bluetooth is already connected')
     }
 
     this.#btDevice = await navigator.bluetooth.requestDevice({
-      filters: [{
-        services: [this.#serviceUUID],
-      }],
+      filters: [
+        {
+          services: [this.#serviceUUID],
+        },
+      ],
     })
 
     if (!this.#btDevice.gatt) {
@@ -41,13 +42,13 @@ class Bluetooth {
     this.#characteristic.addEventListener('characteristicvaluechanged', this.handleData)
   }
 
-  async disconnect() {
+  disconnect = async () => {
     if (this.#btDevice?.gatt) {
       await this.#btDevice.gatt.disconnect()
     }
   }
 
-  async send(data: string, delimiter = '\n') {
+  send = async (data: string, delimiter = '\n') => {
     if (!this.#characteristic) {
       throw new Error('[Bluetooth] Cannot send data: characteristic not available.')
     }
@@ -56,18 +57,18 @@ class Bluetooth {
     const buffer = new ArrayBuffer(message.length)
     const encodedMessage = new Uint8Array(buffer)
 
-    for(let i = 0; i < message.length; i++){
-        encodedMessage[i] = message.charCodeAt(i)
+    for (let i = 0; i < message.length; i++) {
+      encodedMessage[i] = message.charCodeAt(i)
     }
 
     await this.#characteristic.writeValue(encodedMessage)
   }
 
-  onReceive(handler: (message: string) => void) {
+  onReceive = (handler: (message: string) => void) => {
     this.#onReceiveHandler = handler
   }
 
-  private handleData(event: any /* TODO: figure out correct types */) {
+  private handleData = (event: any /* TODO: figure out correct types */) => {
     const rawData = new Uint8Array(event.target?.value.buffer)
     const message = String.fromCharCode.apply(null, rawData as any)
 

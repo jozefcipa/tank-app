@@ -1,4 +1,4 @@
-import { cx } from "../utils"
+import { cx } from '../utils'
 
 enum ProximityLevel {
   Critical = 'critical',
@@ -17,7 +17,7 @@ const colors = {
 const style = (color: string) => ({
   borderBottom: `20px solid ${color}`,
   borderLeft: '20px solid transparent',
-  borderRight: '20px solid transparent'
+  borderRight: '20px solid transparent',
 })
 
 const proximityLevelOpacity = (value: ProximityLevel, proximityLevel: ProximityLevel) =>
@@ -57,7 +57,7 @@ export const ObstacleDetector = (props: { distance: number }) => {
         className={cx('h-0 w-[30rem] mb-1', proximityLevelOpacity(proximityLevel, ProximityLevel.Safe))}
         style={style(colors[ProximityLevel.Safe])}
       ></div>
-      <div className="text-lg" style={{ color: colors[proximityLevel]}}>
+      <div className="text-lg" style={{ color: colors[proximityLevel] }}>
         {props.distance < 100 ? props.distance : '> 100'} cm
       </div>
     </div>

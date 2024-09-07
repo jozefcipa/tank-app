@@ -19,7 +19,7 @@ type Props = {
 export const Dashboard = (props: Props) => (
   <div className="grid grid-rows-6">
     <div className="row-span-2">
-      <ObstacleDetector distance={28}/>
+      <ObstacleDetector distance={28} />
     </div>
     <div className="row-span-2 flex items-center">
       <div className="flex-1 text-left">
@@ -29,14 +29,11 @@ export const Dashboard = (props: Props) => (
           <div>Humidity</div>
           <strong className="text-blue-500">{props.humidityPercentage}%</strong>
           <div>Lights</div>
-          <Toggle
-            checked={props.lightsOn}
-            onChange={() => props.onLightsToggle(!props.lightsOn)}
-          />
+          <Toggle checked={props.lightsOn} onChange={() => props.onLightsToggle(!props.lightsOn)} />
         </div>
       </div>
       <div className="flex-1">
-        <Compass position={props.compassPosition}/>
+        <Compass position={props.compassPosition} />
       </div>
     </div>
     <div className="row-span-1 flex items-center justify-center">
@@ -46,8 +43,6 @@ export const Dashboard = (props: Props) => (
         onClick={props.onBluetoothConnect}
       />
     </div>
-    <div className="row-span-1">
-      {props.error && <ErrorAlert title={'Error'} message={props.error}/>}
-    </div>
+    <div className="row-span-1">{props.error && <ErrorAlert title={'Error'} message={props.error} />}</div>
   </div>
 )
