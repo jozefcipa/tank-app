@@ -2,7 +2,7 @@ import { BluetoothInstance } from './bluetooth.ts'
 import { lights } from '../tank/lights.ts'
 import { Periphery, PeripheryActions, PeripheryType, PromisifyFunctions, TankState } from '../tank/types.ts'
 
-type OnDataChangeHandler = (state: TankState, err?: Error) => void
+type OnDataChangeHandler = (state: Partial<TankState>, err?: Error) => void
 
 // Communication style
 // Control App - MASTER
@@ -87,10 +87,10 @@ class Tank {
     }
   }
 
-  #parseAnswer(message: string): TankState {
+  #parseAnswer(message: string): Partial<TankState> {
     this.#validateMessageFormat(message)
 
-    const state: TankState = {}
+    const state: Partial<TankState> = {}
     const peripheryValuePairs = message.split(';')
 
     for (const peripheryValuePair of peripheryValuePairs) {

@@ -1,10 +1,11 @@
 import { MotorControlButtons } from './containers/MotorControlButtons.tsx'
 import { Camera } from './containers/Camera.tsx'
 import { Dashboard } from './containers/Dashboard.tsx'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useContext } from 'react'
 import { MotorDirection } from './tank/types.ts'
 import bluetooth from './services/bluetooth.ts'
 import { tank } from './services/tank.ts'
+import { TankContext } from './tank/context.tsx'
 
 interface MotorDirections {
   left: MotorDirection
@@ -53,9 +54,9 @@ function App() {
   //   }
   // }, 1000)
 
-  const [bluetoothConnecting, setBluetoothConnecting] = useState(false)
-  const [bluetoothConnected, setBluetoothConnected] = useState(false)
   const [error, setError] = useState<string>('')
+
+  const tankState = useContext(TankContext)
 
   // Handle directions from keyboard
   useEffect(() => {
@@ -84,7 +85,9 @@ function App() {
     }
   }, [])
 
-  const [lightsOn, setLightsOn] = useState(false)
+  useEffect(() => {
+    console.log('tank state has changed', tankState)
+  }, [tankState])
 
   return (
     <main className="h-dvh">
@@ -102,24 +105,25 @@ function App() {
               temperature={20}
               humidityPercentage={50}
               compassPosition={0}
-              lightsOn={lightsOn}
               onLightsToggle={async (enabled: boolean) => {
-                if (enabled) {
-                  await tank.actions.lights.turnOn()
-                } else {
-                  await tank.actions.lights.turnOff()
+                try {
+                  if (enabled) {
+                    await tank.actions.lights.turnOn()
+                  } else {
+                    await tank.actions.lights.turnOff()
+                  }
+                  tankState.setLights({ turnedOn: enabled })
+                } catch (err) {
+                  setError((err as Error).message)
                 }
-                setLightsOn(enabled)
               }}
-              isBluetoothConnecting={bluetoothConnecting}
-              isBluetoothConnected={bluetoothConnected}
               onBluetoothConnect={async () => {
-                if (bluetoothConnected) {
+                if (tankState.connected || tankState.isConnecting) {
                   return
                 }
 
                 // Connect to Bluetooth
-                setBluetoothConnecting(true)
+                tankState.setIsConnecting(true)
                 setError('')
                 try {
                   await bluetooth.connect()
@@ -131,9 +135,6 @@ function App() {
                     }
                     console.log('new state', state)
                   })
-
-                  // TODO: these two didn't seem to work one after another, why?
-                  // await tank.lights.turnOn()
                 } catch (err: unknown) {
                   const errMessage = (err as Error).message
 
@@ -150,10 +151,10 @@ function App() {
                     setError((err as Error).message)
                   }
                 } finally {
-                  setBluetoothConnecting(false)
+                  tankState.setIsConnecting(false)
                 }
 
-                setBluetoothConnected(true)
+                tankState.setIsConnected(true)
               }}
               error={error}
             />

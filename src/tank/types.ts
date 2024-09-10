@@ -39,5 +39,7 @@ export interface LightsState {
 }
 
 export interface TankState {
-  [PeripheryType.Lights]?: LightsState
+  isConnecting: boolean
+  connected: boolean
+  [PeripheryType.Lights]: LightsState
 }
