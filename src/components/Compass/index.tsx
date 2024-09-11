@@ -13,13 +13,13 @@ export const Compass = ({ position }: Props) => {
           <div className="east">E</div>
           <div className="west">W</div>
           <div className="south">S</div>
-          <div className="main-arrow" style={{ transform: `rotate(${position}deg)` }}>
+          <div className="main-arrow" style={{ transform: `rotate(${position === -1 ? 0 : position}deg)` }}>
             <div className="arrow-up"></div>
             <div className="arrow-down"></div>
           </div>
         </div>
       </div>
-      <span>{position}°</span>
+      <span>{position === -1 ? '-' : position}°</span>
     </div>
   )
 }

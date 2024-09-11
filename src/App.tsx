@@ -85,9 +85,24 @@ function App() {
     }
   }, [])
 
+  // TODO: temp
   useEffect(() => {
-    console.log('tank state has changed', tankState)
-  }, [tankState])
+    tank.init(bluetooth, (newState, err) => {
+      if (err) {
+        console.error(err)
+        setError(err.message)
+        return
+      }
+
+      if (newState.lights) {
+        tankState.setLights(newState.lights)
+      }
+
+      if (newState.sensors) {
+        tankState.setSensors(newState.sensors)
+      }
+    })
+  }, [])
 
   return (
     <main className="h-dvh">
@@ -102,9 +117,6 @@ function App() {
         <div className="col-span-6 py-5 px-3">
           <div className="grid grid-rows-2 gap-5 h-full">
             <Dashboard
-              temperature={20}
-              humidityPercentage={50}
-              compassPosition={0}
               onLightsToggle={async (enabled: boolean) => {
                 try {
                   if (enabled) {
@@ -133,7 +145,6 @@ function App() {
                       setError(err.message)
                       return
                     }
-                    console.log('new state', state)
                   })
                 } catch (err: unknown) {
                   const errMessage = (err as Error).message

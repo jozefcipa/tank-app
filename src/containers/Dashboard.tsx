@@ -7,13 +7,12 @@ import { useContext } from 'react'
 import { TankContext } from '../tank/context.tsx'
 
 type Props = {
-  temperature: number
-  humidityPercentage: number
-  compassPosition: number
   onLightsToggle: (lightsOn: boolean) => void
   onBluetoothConnect: () => Promise<void>
   error?: string
 }
+
+const formatValue = (value: number) => (value === -1 ? '-' : value.toFixed(1))
 
 export const Dashboard = (props: Props) => {
   const tankState = useContext(TankContext)
@@ -21,24 +20,25 @@ export const Dashboard = (props: Props) => {
   return (
     <div className="grid grid-rows-6">
       <div className="row-span-2">
-        <ObstacleDetector distance={28} />
+        <ObstacleDetector />
       </div>
       <div className="row-span-2 flex items-center">
         <div className="flex-1 text-left">
           <div className="grid grid-cols-2 gap-1">
             <div>Temperature</div>
-            <strong className="text-blue-500">{props.temperature}°C</strong>
+            <strong className="text-blue-500">{formatValue(tankState.sensors.temperature)}°C</strong>
             <div>Humidity</div>
-            <strong className="text-blue-500">{props.humidityPercentage}%</strong>
+            <strong className="text-blue-500">{formatValue(tankState.sensors.humidity)} %</strong>
             <div>Lights</div>
             <Toggle
               checked={tankState.lights.turnedOn}
               onChange={() => props.onLightsToggle(!tankState.lights.turnedOn)}
+              disabled={!tankState.connected}
             />
           </div>
         </div>
         <div className="flex-1">
-          <Compass position={props.compassPosition} />
+          <Compass position={tankState.sensors.compass} />
         </div>
       </div>
       <div className="row-span-1 flex items-center justify-center">
@@ -48,7 +48,7 @@ export const Dashboard = (props: Props) => {
           onClick={props.onBluetoothConnect}
         />
       </div>
-      {/* FIX layout moving when error is displayed (row height changes for all rows)*/}
+      {/* TODO fix layout moving when error is displayed (row height changes for all rows)*/}
       <div className="row-span-1">{props.error && <ErrorAlert title={'Error'} message={props.error} />}</div>
     </div>
   )

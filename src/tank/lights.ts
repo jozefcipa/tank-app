@@ -1,8 +1,8 @@
 import { LightsState, Periphery, PeripheryType } from './types'
 
 enum LightStatus {
-  ON = 'on',
-  OFF = 'off',
+  ON = 'ON',
+  OFF = 'OFF',
 }
 
 export const lights: Periphery<PeripheryType.Lights, LightStatus, LightsState> = {

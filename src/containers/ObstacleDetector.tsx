@@ -1,4 +1,6 @@
 import { cx } from '../utils'
+import { TankContext } from '../tank/context.tsx'
+import { useContext } from 'react'
 
 enum ProximityLevel {
   Critical = 'critical',
@@ -20,8 +22,8 @@ const style = (color: string) => ({
   borderRight: '20px solid transparent',
 })
 
-const proximityLevelOpacity = (value: ProximityLevel, proximityLevel: ProximityLevel) =>
-  value === proximityLevel ? 'opacity-100' : 'opacity-20'
+const proximityLevelOpacity = (value: ProximityLevel | null, proximityLevel: ProximityLevel) =>
+  value && value === proximityLevel ? 'opacity-100' : 'opacity-20'
 
 const evaluateProximityLevel = (distance: number) => {
   switch (true) {
@@ -36,11 +38,12 @@ const evaluateProximityLevel = (distance: number) => {
   }
 }
 
-export const ObstacleDetector = (props: { distance: number }) => {
-  const proximityLevel = evaluateProximityLevel(props.distance)
+export const ObstacleDetector = () => {
+  const tankState = useContext(TankContext)
+  const proximityLevel = tankState.sensors.sonar === -1 ? null : evaluateProximityLevel(tankState.sensors.sonar)
 
   return (
-    <div className="flex flex-col items-center border-t-2 border-black">
+    <div className="flex flex-col items-center border-t-2 border-black pt-1">
       <div
         className={cx('h-0 w-[21rem] mb-1', proximityLevelOpacity(proximityLevel, ProximityLevel.Critical))}
         style={style(colors[ProximityLevel.Critical])}
@@ -57,8 +60,8 @@ export const ObstacleDetector = (props: { distance: number }) => {
         className={cx('h-0 w-[30rem] mb-1', proximityLevelOpacity(proximityLevel, ProximityLevel.Safe))}
         style={style(colors[ProximityLevel.Safe])}
       ></div>
-      <div className="text-lg" style={{ color: colors[proximityLevel] }}>
-        {props.distance < 100 ? props.distance : '> 100'} cm
+      <div className="text-lg" style={{ color: proximityLevel ? colors[proximityLevel] : '#000' }}>
+        {tankState.sensors.sonar === -1 ? '-' : tankState.sensors.sonar < 100 ? tankState.sensors.sonar : '> 100'} cm
       </div>
     </div>
   )

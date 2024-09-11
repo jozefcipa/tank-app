@@ -1,11 +1,15 @@
 export enum PeripheryType {
   Lights = 'lights',
+  Sensors = 'sensors',
 }
 
 export interface PeripheryActions {
   [PeripheryType.Lights]: {
     turnOn: () => string
     turnOff: () => string
+  }
+  [PeripheryType.Sensors]: {
+    read: () => string
   }
 }
 
@@ -38,8 +42,16 @@ export interface LightsState {
   turnedOn: boolean
 }
 
+export interface SensorsState {
+  sonar: number
+  compass: number
+  temperature: number
+  humidity: number
+}
+
 export interface TankState {
   isConnecting: boolean
   connected: boolean
   [PeripheryType.Lights]: LightsState
+  [PeripheryType.Sensors]: SensorsState
 }

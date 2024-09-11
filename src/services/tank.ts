@@ -1,5 +1,6 @@
 import { BluetoothInstance } from './bluetooth.ts'
 import { lights } from '../tank/lights.ts'
+import { sensors } from '../tank/sensors.ts'
 import { Periphery, PeripheryActions, PeripheryType, PromisifyFunctions, TankState } from '../tank/types.ts'
 
 type OnDataChangeHandler = (state: Partial<TankState>, err?: Error) => void
@@ -17,6 +18,7 @@ class Tank {
   // Dynamically assign periphery actions to the tank
   actions = {
     lights: this.#buildActionWrapper<PeripheryType.Lights, PeripheryActions[PeripheryType.Lights]>(lights),
+    sensors: this.#buildActionWrapper<PeripheryType.Sensors, PeripheryActions[PeripheryType.Sensors]>(sensors),
   }
 
   init(bluetoothInstance: BluetoothInstance, onDataChange: OnDataChangeHandler) {
@@ -81,10 +83,13 @@ class Tank {
   // - individual keys are separated by ;, e.g. "key1=value1;key2=value2"
   // - value structure is arbitrarily defined by the specific periphery
   #validateMessageFormat(message: string) {
-    const messageFormat = /[a-zA-Z0-9]+=[a-zA-Z0-9._-]+;*?/
-    if (!messageFormat.test(message)) {
-      throw new Error(`[Tank]: Corrupted message format: ${message}`)
-    }
+    const messageFormat = /^[a-zA-Z0-9]+=[a-zA-Z0-9.:_|-]+$/
+
+    message.split(';').forEach(peripheryValuePair => {
+      if (!messageFormat.test(peripheryValuePair)) {
+        throw new Error(`[Tank]: Corrupted message format: ${peripheryValuePair}`)
+      }
+    })
   }
 
   #parseAnswer(message: string): Partial<TankState> {
@@ -99,6 +104,10 @@ class Tank {
       switch (peripheryType) {
         case PeripheryType.Lights: {
           state[peripheryType] = lights.decodeValue(value)
+          break
+        }
+        case PeripheryType.Sensors: {
+          state[peripheryType] = sensors.decodeValue(value)
           break
         }
         default: {
