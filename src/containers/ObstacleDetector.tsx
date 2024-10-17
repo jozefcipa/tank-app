@@ -43,7 +43,7 @@ export const ObstacleDetector = () => {
   const proximityLevel = tankState.sensors.sonar === -1 ? null : evaluateProximityLevel(tankState.sensors.sonar)
 
   return (
-    <div className="flex flex-col items-center border-t-2 border-black pt-1">
+    <div className="flex flex-col items-center pt-1">
       <div
         className={cx('h-0 w-[21rem] mb-1', proximityLevelOpacity(proximityLevel, ProximityLevel.Critical))}
         style={style(colors[ProximityLevel.Critical])}

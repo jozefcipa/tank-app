@@ -44,8 +44,7 @@ class Tank {
   }
 
   #buildActionWrapper<Type extends PeripheryType, Actions extends PeripheryActions[Type]>(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    periphery: Periphery<Type, any, any>,
+    periphery: Periphery<Type>,
   ): PromisifyFunctions<Actions> {
     return Object.entries(periphery.actions).reduce((peripheryActions, [actionName, actionFn]) => {
       // TODO: fix TS type
@@ -55,7 +54,7 @@ class Tank {
         // to the actual handlers that send messages to the tank
         // TODO: fix TS type
         // @ts-expect-error `arguments` type is hard to type
-        const message = periphery.encodeValue(actionFn(...args))
+        const message = `${periphery.type}=${actionFn(...args)}`
         await this.#sendMessage(message)
       }
       return peripheryActions
@@ -64,15 +63,15 @@ class Tank {
 
   async #sendMessage(message: string): Promise<void> {
     if (!this.#bluetoothInstance) {
-      throw new Error('[Tank]: Cannot send messages to the tank. Device is not connected.')
+      throw new Error('[Tank]: Cannot send message to the tank. Device is not connected.')
     }
 
     try {
       this.#validateMessageFormat(message)
-      console.log('[Tank]: Sending message to tank', message)
-      await this.#bluetoothInstance?.send(message)
+      console.log(`[Tank]: Sending message to tank: "${message}"`)
+      await this.#bluetoothInstance.send(message)
     } catch (error) {
-      console.error('[Tank]: Error sending message to tank', error)
+      console.error('[Tank]: Error sending message to tank: ', error)
 
       throw error
     }
@@ -83,7 +82,7 @@ class Tank {
   // - individual keys are separated by ;, e.g. "key1=value1;key2=value2"
   // - value structure is arbitrarily defined by the specific periphery
   #validateMessageFormat(message: string) {
-    const messageFormat = /^[a-zA-Z0-9]+=[a-zA-Z0-9.:_|-]+$/
+    const messageFormat = /^[a-zA-Z0-9]+=[\sa-zA-Z0-9.:_|-]+$/
 
     message.split(';').forEach(peripheryValuePair => {
       if (!messageFormat.test(peripheryValuePair)) {

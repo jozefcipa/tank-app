@@ -11,7 +11,7 @@ enum SensorPeriphery {
   HUMIDITY = 'humidity',
 }
 
-export const sensors: Periphery<PeripheryType.Sensors, SensorsAction, SensorsState> = {
+export const sensors: Periphery<PeripheryType.Sensors, SensorsState> = {
   type: PeripheryType.Sensors,
   actions: {
     read: () => SensorsAction.READ,
@@ -20,7 +20,7 @@ export const sensors: Periphery<PeripheryType.Sensors, SensorsAction, SensorsSta
   // Format is:
   // sonar:25|compass:189|temperature:25.8|humidity:58
   decodeValue: (value: string): SensorsState => {
-    const messageFormat = /^[a-zA-Z]+:[0-9.-]+$/
+    const messageFormat = /^[a-zA-Z]+:[\s0-9.-]+$/
 
     value.split('|').forEach(sensorValuePair => {
       if (!messageFormat.test(sensorValuePair)) {
@@ -44,5 +44,4 @@ export const sensors: Periphery<PeripheryType.Sensors, SensorsAction, SensorsSta
       humidity: peripheries[SensorPeriphery.HUMIDITY] ?? -1,
     }
   },
-  encodeValue: (action: SensorsAction) => `${PeripheryType.Sensors}=${action}`,
 }

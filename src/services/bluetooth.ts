@@ -1,12 +1,12 @@
 type OnReceiveHandler = (message: string) => void
 
 class Bluetooth {
-  // TODO find out what these numbers mean
   #serviceUUID = 0xffe0
   #serialUUID = 0xffe1
   #btDevice: BluetoothDevice | null = null
   #characteristic: BluetoothRemoteGATTCharacteristic | null = null
   #onReceiveHandler: OnReceiveHandler | null = null
+  #receivedDataBuffer = ''
 
   get isConnected() {
     return Boolean(this.#btDevice?.gatt)
@@ -14,32 +14,31 @@ class Bluetooth {
 
   connect = async () => {
     if (this.isConnected) {
-      console.warn('Bluetooth is already connected')
+      console.warn('[Bluetooth] Already connected')
+      return
     }
 
     this.#btDevice = await navigator.bluetooth.requestDevice({
-      filters: [
-        {
-          services: [this.#serviceUUID],
-        },
-      ],
+      filters: [{ services: [this.#serviceUUID] }],
     })
 
     if (!this.#btDevice.gatt) {
       throw new Error('[Bluetooth] gatt is unavailable')
     }
 
-    // todo what is GATT, service and characteristic?
-
     const server = await this.#btDevice.gatt.connect()
+    console.log('[Bluetooth] Connected to GATT server', server)
     const service = await server.getPrimaryService(this.#serviceUUID)
+    console.log('[Bluetooth] GATT service retrieved', service)
     this.#characteristic = await service.getCharacteristic(this.#serialUUID)
+    console.log('[Bluetooth] GATT characteristic retrieved', this.#characteristic)
 
-    // todo what this does
     await this.#characteristic.startNotifications()
 
     // register data listener
     this.#characteristic.addEventListener('characteristicvaluechanged', this.handleData)
+
+    console.log('[Bluetooth] Connection established')
   }
 
   disconnect = async () => {
@@ -54,30 +53,46 @@ class Bluetooth {
     }
 
     const message = `${data}${delimiter}`
-    const buffer = new ArrayBuffer(message.length)
-    const encodedMessage = new Uint8Array(buffer)
 
-    for (let i = 0; i < message.length; i++) {
-      encodedMessage[i] = message.charCodeAt(i)
+    try {
+      await this.#characteristic.writeValue(new TextEncoder().encode(message))
+    } catch (err) {
+      // Not sure why this error is thrown, but it doesn't seem to affect the operation
+      if ((err as Error).message === 'GATT operation failed for unknown reason.') {
+        // do nothing ...
+      } else {
+        throw err
+      }
     }
-
-    await this.#characteristic.writeValue(encodedMessage)
   }
 
   onReceive = (handler: (message: string) => void) => {
     this.#onReceiveHandler = handler
   }
 
-  private handleData = (event: any /* TODO: figure out correct types */) => {
-    const rawData = new Uint8Array(event.target?.value.buffer)
-    const message = String.fromCharCode.apply(null, rawData as any)
+  private handleData = (e: Event) => {
+    const event = e.target as BluetoothRemoteGATTCharacteristic
+    if (!event.value?.buffer) {
+      return
+    }
+
+    // Incoming message comes in chunks, so we need to concatenate them
+    const message = new TextDecoder().decode(new Uint8Array(event.value.buffer))
+    this.#receivedDataBuffer += message
+
+    // wait until the whole message is received (ends with \n)
+    if (!message.endsWith('\n')) {
+      return
+    }
 
     if (!this.#onReceiveHandler) {
       console.warn('[Bluetooth] Incoming data discarded: no listener has been defined.')
       return
     }
 
-    this.#onReceiveHandler(message)
+    const msg = this.#receivedDataBuffer.trimEnd()
+    this.#receivedDataBuffer = ''
+    this.#onReceiveHandler(msg)
   }
 }
 

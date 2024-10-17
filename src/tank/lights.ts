@@ -5,7 +5,7 @@ enum LightStatus {
   OFF = 'OFF',
 }
 
-export const lights: Periphery<PeripheryType.Lights, LightStatus, LightsState> = {
+export const lights: Periphery<PeripheryType.Lights, LightsState> = {
   type: PeripheryType.Lights,
   actions: {
     turnOn: () => LightStatus.ON,
@@ -14,5 +14,4 @@ export const lights: Periphery<PeripheryType.Lights, LightStatus, LightsState> =
   decodeValue: (value: string): LightsState => ({
     turnedOn: value === LightStatus.ON,
   }),
-  encodeValue: (lightStatus: LightStatus) => `${PeripheryType.Lights}=${lightStatus}`,
 }

@@ -1,6 +1,7 @@
 export enum PeripheryType {
   Lights = 'lights',
   Sensors = 'sensors',
+  Motors = 'motors',
 }
 
 export interface PeripheryActions {
@@ -10,6 +11,9 @@ export interface PeripheryActions {
   }
   [PeripheryType.Sensors]: {
     read: () => string
+  }
+  [PeripheryType.Motors]: {
+    turn: (directions: { right: MotorDirection; left: MotorDirection }) => string
   }
 }
 
@@ -23,9 +27,8 @@ export type PromisifyFunctions<T> = {
   [K in keyof T]: T[K] extends (...args: infer Args) => unknown ? (...args: Args) => Promise<void> : T[K]
 }
 
-export interface Periphery<T extends PeripheryType, EncodeInput, State extends object> {
+export interface Periphery<T extends PeripheryType, State = unknown> {
   type: T
-  encodeValue: (args: EncodeInput) => string
   decodeValue: (value: string) => State
   actions: PeripheryActions[T]
 }

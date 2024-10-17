@@ -1,11 +1,11 @@
 import { MotorControlButtons } from './containers/MotorControlButtons.tsx'
-import { Camera } from './containers/Camera.tsx'
 import { Dashboard } from './containers/Dashboard.tsx'
-import { useEffect, useState, useContext } from 'react'
+import { useEffect, useState, useContext, useRef } from 'react'
 import { MotorDirection } from './tank/types.ts'
 import bluetooth from './services/bluetooth.ts'
 import { tank } from './services/tank.ts'
 import { TankContext } from './tank/context.tsx'
+import { useInterval } from './hooks/useInterval.ts'
 
 interface MotorDirections {
   left: MotorDirection
@@ -42,17 +42,41 @@ function keyboardEventToMotorDirections(event: KeyboardEvent): MotorDirections |
 function App() {
   const [leftMotorDirection, setLeftMotorDirection] = useState<MotorDirection | null>(null)
   const [rightMotorDirection, setRightMotorDirection] = useState<MotorDirection | null>(null)
+  const sensorsLastRequestedAt = useRef<Date | null>(null)
 
-  // useInterval(() => {
-  //   console.log('tick')
-  //
-  //   if (leftMotorDirection || rightMotorDirection) {
-  //     console.log('sending to robot', {
-  //       leftMotorDirection,
-  //       rightMotorDirection,
-  //     })
-  //   }
-  // }, 1000)
+  useInterval(() => {
+    if (!tankState.connected) {
+      return
+    }
+
+    console.log('tick')
+
+    if (leftMotorDirection || rightMotorDirection) {
+      // send motor directions to the tank
+      tank.actions.motors
+        .turn({
+          left: leftMotorDirection || MotorDirection.Stop,
+          right: rightMotorDirection || MotorDirection.Stop,
+        })
+        .catch(err => {
+          console.error(err)
+          setError((err as Error).message)
+        })
+    }
+
+    // Get sensors data every second
+    if (!sensorsLastRequestedAt.current || Date.now() - sensorsLastRequestedAt.current.getTime() > 3000) {
+      // todo decrease
+      sensorsLastRequestedAt.current = new Date()
+      tank.actions.sensors.read().catch(err => {
+        console.error(err)
+        setError((err as Error).message)
+      })
+    }
+  }, 1000)
+
+  // TODO: handle disconnect
+  // TODO: when connected, and click on connect, disconnect
 
   const [error, setError] = useState<string>('')
 
@@ -70,7 +94,6 @@ function App() {
 
     const keyUpHandler = (event: KeyboardEvent) => {
       if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
-        console.log('resetting motor directions')
         setLeftMotorDirection(null)
         setRightMotorDirection(null)
       }
@@ -85,96 +108,81 @@ function App() {
     }
   }, [])
 
-  // TODO: temp
-  useEffect(() => {
-    tank.init(bluetooth, (newState, err) => {
-      if (err) {
-        console.error(err)
-        setError(err.message)
+  const handleBluetoothConnect = async () => {
+    if (tankState.connected || tankState.isConnecting) {
+      return
+    }
+
+    // Connect to Bluetooth
+    tankState.setIsConnecting(true)
+    setError('')
+
+    try {
+      // Connect to the tank
+      await bluetooth.connect()
+
+      // Initialize the tank wrapper
+      tank.init(bluetooth, (newState, err) => {
+        if (err) {
+          console.error(err)
+          setError(err.message)
+          return
+        }
+
+        if (newState.lights) {
+          tankState.setLights(newState.lights)
+        }
+
+        if (newState.sensors) {
+          tankState.setSensors(newState.sensors)
+        }
+      })
+
+      // Read the initial sensor data
+      await tank.actions.sensors.read()
+    } catch (err: unknown) {
+      const errMessage = (err as Error).message
+
+      // User cancelled the Bluetooth dialog
+      if (errMessage === 'User cancelled the requestDevice() chooser.') {
         return
       }
 
-      if (newState.lights) {
-        tankState.setLights(newState.lights)
-      }
+      console.error(err)
+      setError((err as Error).message)
+    } finally {
+      tankState.setIsConnecting(false)
+    }
 
-      if (newState.sensors) {
-        tankState.setSensors(newState.sensors)
-      }
-    })
-  }, [])
+    tankState.setIsConnected(true)
+  }
+
+  const handleLightsToggle = async (enabled: boolean) => {
+    try {
+      await (enabled ? tank.actions.lights.turnOn() : tank.actions.lights.turnOff())
+      tankState.setLights({ turnedOn: enabled })
+    } catch (err) {
+      setError((err as Error).message)
+    }
+  }
 
   return (
-    <main className="h-dvh">
+    <main className="h-dvh p-5">
       <div className="grid grid-cols-10 h-full">
-        <div className="col-span-2 py-5 px-3">
+        <div className="col-span-2">
           {/* Left motor */}
           <MotorControlButtons
             onButtonDown={(direction: MotorDirection) => setLeftMotorDirection(direction)}
             onButtonUp={() => setLeftMotorDirection(null)}
           />
         </div>
-        <div className="col-span-6 py-5 px-3">
-          <div className="grid grid-rows-2 gap-5 h-full">
-            <Dashboard
-              onLightsToggle={async (enabled: boolean) => {
-                try {
-                  if (enabled) {
-                    await tank.actions.lights.turnOn()
-                  } else {
-                    await tank.actions.lights.turnOff()
-                  }
-                  tankState.setLights({ turnedOn: enabled })
-                } catch (err) {
-                  setError((err as Error).message)
-                }
-              }}
-              onBluetoothConnect={async () => {
-                if (tankState.connected || tankState.isConnecting) {
-                  return
-                }
-
-                // Connect to Bluetooth
-                tankState.setIsConnecting(true)
-                setError('')
-                try {
-                  await bluetooth.connect()
-                  tank.init(bluetooth, (state, err) => {
-                    if (err) {
-                      console.error(err)
-                      setError(err.message)
-                      return
-                    }
-                  })
-                } catch (err: unknown) {
-                  const errMessage = (err as Error).message
-
-                  // User cancelled the Bluetooth dialog
-                  if (errMessage === 'User cancelled the requestDevice() chooser.') {
-                    return
-                  }
-
-                  // TODO: wtf is this???
-                  if (errMessage === 'GATT operation failed for unknown reason.') {
-                    // do nothing ...
-                  } else {
-                    console.error(err)
-                    setError((err as Error).message)
-                  }
-                } finally {
-                  tankState.setIsConnecting(false)
-                }
-
-                tankState.setIsConnected(true)
-              }}
-              error={error}
-            />
-            <div className="border border-black text-center content-center">
-              <Camera />
-            </div>
+        <div className="col-span-6 px-5">
+          <div className="grid grid-rows-2 h-full">
+            <Dashboard onLightsToggle={handleLightsToggle} onBluetoothConnect={handleBluetoothConnect} error={error} />
+            {/*<Camera />*/}
           </div>
         </div>
-        <div className="col-span-2 py-5 px-3">
+        <div className="col-span-2">
           {/* Right motor */}
           <MotorControlButtons
             onButtonDown={(direction: MotorDirection) => setRightMotorDirection(direction)}
