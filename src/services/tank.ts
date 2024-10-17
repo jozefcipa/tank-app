@@ -2,6 +2,7 @@ import { BluetoothInstance } from './bluetooth.ts'
 import { lights } from '../tank/lights.ts'
 import { sensors } from '../tank/sensors.ts'
 import { Periphery, PeripheryActions, PeripheryType, PromisifyFunctions, TankState } from '../tank/types.ts'
+import { motors } from '../tank/motors.ts'
 
 type OnDataChangeHandler = (state: Partial<TankState>, err?: Error) => void
 
@@ -19,6 +20,7 @@ class Tank {
   actions = {
     lights: this.#buildActionWrapper<PeripheryType.Lights, PeripheryActions[PeripheryType.Lights]>(lights),
     sensors: this.#buildActionWrapper<PeripheryType.Sensors, PeripheryActions[PeripheryType.Sensors]>(sensors),
+    motors: this.#buildActionWrapper<PeripheryType.Motors, PeripheryActions[PeripheryType.Motors]>(motors),
   }
 
   init(bluetoothInstance: BluetoothInstance, onDataChange: OnDataChangeHandler) {
