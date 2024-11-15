@@ -106,6 +106,15 @@ function App() {
     }
   }, [])
 
+  // Automatically clear error message after 5s
+  useEffect(() => {
+    if (error !== '') {
+      setTimeout(() => {
+        setError('')
+      }, 5000)
+    }
+  }, [error])
+
   const handleBluetoothConnect = async () => {
     if (tankState.isConnecting) {
       return
