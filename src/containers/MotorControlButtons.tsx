@@ -20,7 +20,7 @@ const Button = (props: ButtonProps) => (
 )
 
 export const MotorControlButtons = (props: Props) => (
-  <div className="grid grid-rows-2 gap-5 h-full">
+  <div className="grid gap-5 h-full">
     <Button direction={MotorDirection.Forward} onButtonDown={props.onButtonDown} onButtonUp={props.onButtonUp} />
     <Button direction={MotorDirection.Backward} onButtonDown={props.onButtonDown} onButtonUp={props.onButtonUp} />
   </div>

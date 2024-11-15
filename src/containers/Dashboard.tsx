@@ -18,38 +18,33 @@ export const Dashboard = (props: Props) => {
   const tankState = useContext(TankContext)
 
   return (
-    <div className="grid grid-rows-6">
-      <div className="row-span-2">
-        <ObstacleDetector />
+    <div className="flex flex-col">
+      <ObstacleDetector />
+      <div className="flex justify-center">
+        <Compass position={tankState.sensors.compass} />
       </div>
-      <div className="row-span-2 flex items-center">
-        <div className="flex-1 text-left">
-          <div className="grid grid-cols-2 gap-1">
-            <div>Temperature</div>
-            <strong className="text-blue-500">{formatValue(tankState.sensors.temperature)}°C</strong>
-            <div>Humidity</div>
-            <strong className="text-blue-500">{formatValue(tankState.sensors.humidity)} %</strong>
-            <div>Lights</div>
-            <Toggle
-              checked={tankState.lights.turnedOn}
-              onChange={() => props.onLightsToggle(!tankState.lights.turnedOn)}
-              disabled={!tankState.connected}
-            />
-          </div>
+      <div className="flex flex-between">
+        <div className="flex-1 grid grid-cols-2 gap-1">
+          <div>Temperature</div>
+          <strong className="text-blue-500">{formatValue(tankState.sensors.temperature)}°C</strong>
+          <div>Humidity</div>
+          <strong className="text-blue-500">{formatValue(tankState.sensors.humidity)} %</strong>
+          <div>Lights</div>
+          <Toggle
+            checked={tankState.lights.turnedOn}
+            onChange={() => props.onLightsToggle(!tankState.lights.turnedOn)}
+            disabled={!tankState.connected}
+          />
         </div>
-        <div className="flex-1">
-          <Compass position={tankState.sensors.compass} />
+        <div className="flex-1 flex justify-end items-center">
+          <BluetoothConnect
+            isLoading={tankState.isConnecting}
+            connected={tankState.connected}
+            onClick={props.onBluetoothConnect}
+          />
         </div>
       </div>
-      <div className="row-span-1 flex items-center justify-center">
-        <BluetoothConnect
-          isLoading={tankState.isConnecting}
-          connected={tankState.connected}
-          onClick={props.onBluetoothConnect}
-        />
-      </div>
-      {/* TODO fix layout moving when error is displayed (row height changes for all rows)*/}
-      <div className="row-span-1">{props.error && <ErrorAlert title={'Error'} message={props.error} />}</div>
+      <div>{props.error && <ErrorAlert title={'Error'} message={props.error} />}</div>
     </div>
   )
 }

@@ -12,3 +12,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@media (orientation: portrait) {
+  body {
+    /*  todo force landscape only */
+  }
+}

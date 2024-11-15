@@ -40,6 +40,7 @@ function keyboardEventToMotorDirections(event: KeyboardEvent): MotorDirections |
 }
 
 function App() {
+  // TODO: move motors code away from here
   const [leftMotorDirection, setLeftMotorDirection] = useState<MotorDirection | null>(null)
   const [rightMotorDirection, setRightMotorDirection] = useState<MotorDirection | null>(null)
   const sensorsLastRequestedAt = useRef<Date | null>(null)
@@ -167,7 +168,7 @@ function App() {
   }
 
   return (
-    <main className="h-dvh p-5">
+    <main className="h-dvh p-5 overflow-hidden	">
       <div className="grid grid-cols-10 h-full">
         <div className="col-span-2">
           {/* Left motor */}
@@ -177,10 +178,7 @@ function App() {
           />
         </div>
         <div className="col-span-6 px-5">
-          <div className="grid grid-rows-2 h-full">
-            <Dashboard onLightsToggle={handleLightsToggle} onBluetoothConnect={handleBluetoothConnect} error={error} />
-            {/*<Camera />*/}
-          </div>
+          <Dashboard onLightsToggle={handleLightsToggle} onBluetoothConnect={handleBluetoothConnect} error={error} />
         </div>
         <div className="col-span-2">
           {/* Right motor */}

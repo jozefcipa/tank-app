@@ -45,19 +45,19 @@ export const ObstacleDetector = () => {
   return (
     <div className="flex flex-col items-center pt-1">
       <div
-        className={cx('h-0 w-[21rem] mb-1', proximityLevelOpacity(proximityLevel, ProximityLevel.Critical))}
+        className={cx('h-0 w-[17rem] mb-1', proximityLevelOpacity(proximityLevel, ProximityLevel.Critical))}
         style={style(colors[ProximityLevel.Critical])}
       ></div>
       <div
-        className={cx('h-0 w-[24rem] mb-1', proximityLevelOpacity(proximityLevel, ProximityLevel.Warning))}
+        className={cx('h-0 w-[20rem] mb-1', proximityLevelOpacity(proximityLevel, ProximityLevel.Warning))}
         style={style(colors[ProximityLevel.Warning])}
       ></div>
       <div
-        className={cx('h-0 w-[27rem] mb-1', proximityLevelOpacity(proximityLevel, ProximityLevel.Caution))}
+        className={cx('h-0 w-[23rem] mb-1', proximityLevelOpacity(proximityLevel, ProximityLevel.Caution))}
         style={style(colors[ProximityLevel.Caution])}
       ></div>
       <div
-        className={cx('h-0 w-[30rem] mb-1', proximityLevelOpacity(proximityLevel, ProximityLevel.Safe))}
+        className={cx('h-0 w-[26rem] mb-1', proximityLevelOpacity(proximityLevel, ProximityLevel.Safe))}
         style={style(colors[ProximityLevel.Safe])}
       ></div>
       <div className="text-lg" style={{ color: proximityLevel ? colors[proximityLevel] : '#000' }}>
