@@ -76,9 +76,6 @@ function App() {
     }
   }, 1000)
 
-  // TODO: handle disconnect
-  // TODO: when connected, and click on connect, disconnect
-
   const [error, setError] = useState<string>('')
 
   const tankState = useContext(TankContext)
@@ -110,7 +107,15 @@ function App() {
   }, [])
 
   const handleBluetoothConnect = async () => {
-    if (tankState.connected || tankState.isConnecting) {
+    if (tankState.isConnecting) {
+      return
+    }
+
+    if (tankState.connected) {
+      await bluetooth.disconnect()
+      tankState.setIsConnected(false)
+      tankState.setLights({ turnedOn: false })
+      tankState.setSensors({ temperature: -1, humidity: -1, compass: -1, sonar: -1 })
       return
     }
 
@@ -177,7 +182,7 @@ function App() {
             onButtonUp={() => setLeftMotorDirection(null)}
           />
         </div>
-        <div className="col-span-6 px-5">
+        <div className="col-span-6 px-5 overflow-scroll">
           <Dashboard onLightsToggle={handleLightsToggle} onBluetoothConnect={handleBluetoothConnect} error={error} />
         </div>
         <div className="col-span-2">

@@ -1,6 +1,6 @@
 .compass {
-  width: 100px;
-  height: 100px;
+  width: 70px;
+  height: 70px;
   background-color: #f3f3f3;
   border-radius: 100%;
   position: relative;
@@ -8,20 +8,24 @@
 }
 
 .compass-inner {
-  width: 85px;
-  height: 85px;
+  width: 60px;
+  height: 60px;
   background-color: #3d3d3d;
   border-radius: 100%;
   position: relative;
-  left: 6.75px;
-  top: 6.75px;
+  left: 5px;
+  top: 5px;
   border: 3px solid #c5c5c5;
 }
 
 .main-arrow {
   height: 100%;
-  width: 7.5px;
-  left: 37px;
+  width: 8px;
+  left: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   position: relative;
   padding-top: 2px;
   box-sizing: border-box;
@@ -35,13 +39,13 @@
   height: 0;
   border-left: 4px solid transparent;
   border-right: 4px solid transparent;
-  border-bottom: 40px solid #ef5052;
+  border-bottom: 15px solid #ef5052;
   position: relative;
 }
 
 .arrow-down {
   transform: rotate(180deg);
-  border-bottom: 40px solid #f3f3f3;
+  border-bottom: 15px solid #f3f3f3;
 }
 
 .north,
@@ -53,23 +57,23 @@
   position: absolute;
 }
 .north {
-  left: 39px;
-  top: 2.5px;
+  left: 23px;
+  top: 0;
 }
 
 .east {
-  left: 72px;
-  top: 37px;
+  left: 44px;
+  top: 22px;
 }
 
 .west {
-  left: 5px;
-  top: 37px;
+  left: 3px;
+  top: 22px;
 }
 
 .south {
-  left: 39px;
-  top: 68px;
+  left: 24px;
+  top: 40px;
 }
 
 @keyframes initCompass {

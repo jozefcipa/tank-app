@@ -45,6 +45,7 @@ class Bluetooth {
     if (this.#btDevice?.gatt) {
       await this.#btDevice.gatt.disconnect()
     }
+    this.#btDevice = null
   }
 
   send = async (data: string, delimiter = '\n') => {
