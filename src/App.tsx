@@ -50,8 +50,6 @@ function App() {
       return
     }
 
-    console.log('tick')
-
     if (leftMotorDirection || rightMotorDirection) {
       // send motor directions to the tank
       tank.actions.motors
@@ -66,15 +64,14 @@ function App() {
     }
 
     // Get sensors data every second
-    if (!sensorsLastRequestedAt.current || Date.now() - sensorsLastRequestedAt.current.getTime() > 3000) {
-      // todo decrease
+    if (!sensorsLastRequestedAt.current || Date.now() - sensorsLastRequestedAt.current.getTime() > 2000) {
       sensorsLastRequestedAt.current = new Date()
       tank.actions.sensors.read().catch(err => {
         console.error(err)
         setError((err as Error).message)
       })
     }
-  }, 1000)
+  }, 400)
 
   const [error, setError] = useState<string>('')
 
